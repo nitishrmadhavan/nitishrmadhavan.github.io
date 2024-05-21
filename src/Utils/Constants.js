@@ -1,16 +1,3 @@
-import splashAnimation from "../Assets/Lottie/SplashAnimation.json"; // Rename to your file name for custom animation
-
- 
-const SplashScreenConst = {
-  enabled: true, // set false to disable splash screen
-  animation: splashAnimation,
-  duration: 2000 // Set animation duration as per your animation
-};
-
-const IllustrationConst = {
-  animated: true // Set to false to use static SVG
-};
-
 const GreetingConst = {
   username: "Nitish Madhavan",
   title: "Hello,I'm Nitish",
@@ -176,8 +163,6 @@ const SocialMediaLinksConst = {
   display: true // Set true to display this section, defaults to false
 };
 export{
-    SplashScreenConst,
-    IllustrationConst,
     GreetingConst,
     SkillsSectionConst,
     ExperiencesConst,
