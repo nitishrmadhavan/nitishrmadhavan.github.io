@@ -18,35 +18,35 @@ const SkillsSectionConst = {
       softwareSkills: [
         {
           skillName: "Java",
-          fontAwesomeClassname: "simple-icons:java",
+          fontAwesomeClassname: "simple-icons:Java",
           style: {
             color: "#E34F26",
           },
         },
         {
           skillName: "MongoDB",
-          fontAwesomeClassname: "simple-icons:mongoDB",
+          fontAwesomeClassname: "simple-icons:mongodb",
           style: {
-            color: "#E34F26",
+            color: "#47A248",
           },
         },
         {
           skillName: "MySQL",
           fontAwesomeClassname: "simple-icons:mysql",
           style: {
-            color: "#E34F26",
+            color: "#4479A1",
           },
         },
         {
           skillName: "HTML5",
-          fontAwesomeClassname: "simple-icons:html",
+          fontAwesomeClassname: "simple-icons:html5",
           style: {
             color: "#E34F26",
           },
         },
         {
           skillName: "CSS3",
-          fontAwesomeClassname: "fa-css3",
+          fontAwesomeClassname: "simple-icons:css3",
           style: {
             color: "#1572B6",
           },
@@ -65,6 +65,48 @@ const SkillsSectionConst = {
             color: "#61DAFB",
           },
         },
+        {
+          skillName: "Git",
+          fontAwesomeClassname: "simple-icons:git",
+          style: {
+            color: "#F05032",
+          },
+        },
+        {
+          skillName: "Docker",
+          fontAwesomeClassname: "simple-icons:docker",
+          style: {
+            color: "#2496ED",
+          },
+        },
+        {
+          skillName: "Jenkins",
+          fontAwesomeClassname: "simple-icons:jenkins",
+          style: {
+            color: "#D24939",
+          },
+        },
+        {
+          skillName: "AWS",
+          fontAwesomeClassname: "simple-icons:amazonaws",
+          style: {
+            color: "#232F3E",
+          },
+        },
+        {
+          skillName: "Spring",
+          fontAwesomeClassname: "simple-icons:spring",
+          style: {
+            color: "#6DB33F",
+          },
+        },
+        {
+          skillName: "SOAP",
+          fontAwesomeClassname: "simple-icons:soap",
+          style: {
+            color: "#61DAFB",
+          },
+        },
       ],
     },
     {
@@ -74,30 +116,30 @@ const SkillsSectionConst = {
       softwareSkills: [
         {
           skillName: "Adobe Illustrator",
-          fontAwesomeClassname: "simple-icons:adobexd",
+          fontAwesomeClassname: "simple-icons:adobeillustrator",
           style: {
-            color: "#FF2BC2",
+            color: "#FF9A00",
           },
         },
         {
           skillName: "Adobe Photoshop",
-          fontAwesomeClassname: "simple-icons:figma",
+          fontAwesomeClassname: "simple-icons:adobephotoshop",
           style: {
-            color: "#F24E1E",
+            color: "#31A8FF",
           },
         },
         {
           skillName: "Adobe Premiere Pro",
-          fontAwesomeClassname: "simple-icons:adobeillustrator",
+          fontAwesomeClassname: "simple-icons:adobepremierepro",
           style: {
-            color: "#FF7C00",
+            color: "#9999FF",
           },
         },
         {
           skillName: "Adobe After Effects",
-          fontAwesomeClassname: "simple-icons:inkscape",
+          fontAwesomeClassname: "simple-icons:adobeaftereffects",
           style: {
-            color: "#000000",
+            color: "#9999FF",
           },
         },
       ],
