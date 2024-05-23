@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/static/css/main.7672ef70.css",
-    "main.js": "/static/js/main.a48c9b75.js",
-    "static/css/272.f9a6c20d.chunk.css": "/static/css/272.f9a6c20d.chunk.css",
+    "main.css": "/static/css/main.04cf8cd3.css",
+    "main.js": "/static/js/main.7719b821.js",
+    "static/css/272.68be23b0.chunk.css": "/static/css/272.68be23b0.chunk.css",
     "static/js/272.9bfeb2cc.chunk.js": "/static/js/272.9bfeb2cc.chunk.js",
     "static/js/453.1407b060.chunk.js": "/static/js/453.1407b060.chunk.js",
     "static/media/fa-solid-900.svg": "/static/media/fa-solid-900.9fa614346b4e81decc62.svg",
@@ -28,14 +28,14 @@
     "static/media/Lentra.webp": "/static/media/Lentra.dee79bccd0683994f475.webp",
     "static/media/Skills.svg": "/static/media/Skills.35a147662ab0a1d15e57.svg",
     "index.html": "/index.html",
-    "main.7672ef70.css.map": "/static/css/main.7672ef70.css.map",
-    "main.a48c9b75.js.map": "/static/js/main.a48c9b75.js.map",
-    "272.f9a6c20d.chunk.css.map": "/static/css/272.f9a6c20d.chunk.css.map",
+    "main.04cf8cd3.css.map": "/static/css/main.04cf8cd3.css.map",
+    "main.7719b821.js.map": "/static/js/main.7719b821.js.map",
+    "272.68be23b0.chunk.css.map": "/static/css/272.68be23b0.chunk.css.map",
     "272.9bfeb2cc.chunk.js.map": "/static/js/272.9bfeb2cc.chunk.js.map",
     "453.1407b060.chunk.js.map": "/static/js/453.1407b060.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.7672ef70.css",
-    "static/js/main.a48c9b75.js"
+    "static/css/main.04cf8cd3.css",
+    "static/js/main.7719b821.js"
   ]
 }
