@@ -1,7 +1,7 @@
 const GreetingConst = {
   username: "Nitish Madhavan",
   title: "Hello,I'm Nitish",
-  subTitle: 
+  subTitle:
     "Visionary Software Architect:  Solid foundation in design principles and software development fuels my passion for crafting resilient, future-proof software.  Eager to disrupt with innovative solutions in a dynamic environment, translating theory and knowledge into tangible results.",
   resumeLink:
     "https://drive.google.com/file/d/19DHG9uoH2VO8PZNEXrkq9k7iZV3V-jV4/view?usp=sharing", // Set to empty to hide the button
@@ -195,20 +195,48 @@ const EducationInfoConst = {
 
 const ProjectsConst = {
   showGithubProfile: "true",
-  display: true 
+  display: true
 };
 
 const SocialMediaLinksConst = {
-  github: "https://github.com/nitishrmadhavan",
-  linkedin: "https://www.linkedin.com/nitishrmadhavan/",
-  gmail: "nitishrmadhavan@gmail.com",
-  display: true // Set true to display this section, defaults to false
+  display: true,
+  socials: [
+    {
+      platform: "Instagram",
+      accName: "Nitish M",
+      userName: "@nitiszhhhh",
+      idbio: [
+        "KRR | BNE", 
+        "Ellame inime"
+      ],
+      postsCount: "15",
+      followersCount: "301",
+      followingCount: "240",
+      coverImage: "https://via.placeholder.com/1200x300", // Cover image URL
+      profileImage: "https://via.placeholder.com/150" 
+    },
+    {
+      platform: "X",
+      accName: "Nitish M",
+      userName: "@nitiszhhhh",
+      idbio: [
+        "KRR | BNE", 
+        "Ellame inime"
+      ],
+      postsCount: "15",
+      followersCount: "301",
+      followingCount: "240",
+      coverImage: "https://via.placeholder.com/1200x300", // Cover image URL
+      profileImage: "https://via.placeholder.com/150" 
+    },
+  ],
 };
-export{
-    GreetingConst,
-    SkillsSectionConst,
-    ExperiencesConst,
-    EducationInfoConst,
-    ProjectsConst,
-    SocialMediaLinksConst
+
+export {
+  GreetingConst,
+  SkillsSectionConst,
+  ExperiencesConst,
+  EducationInfoConst,
+  ProjectsConst,
+  SocialMediaLinksConst
 }

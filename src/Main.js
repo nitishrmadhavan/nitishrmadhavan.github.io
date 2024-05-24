@@ -6,6 +6,7 @@ import Experience from "./Containers/Experience/Experience";
 import Education from "./Containers/Education/Education";
 import Projects from "./Containers/Projects/Projects";
 import GoToTop from "./Components/GoToTop/GoToTop";
+import SocialLinks from "./Containers/Social Media/SocialLinks";
 
 const Main = () => {
   return (
@@ -16,6 +17,7 @@ const Main = () => {
       <Experience />
       <Education />
       <Projects />
+      <SocialLinks />
       <GoToTop />
     </div>
   );

@@ -53,7 +53,7 @@ function Header() {
                     )}
                     {viewSocialMedia && (
                         <li>
-                            <a href="#Contact">Contact Me</a>
+                            <a href="#SocialMedia">Contact Me</a>
                         </li>
                     )}
                 </ul>
