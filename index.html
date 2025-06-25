@@ -25,6 +25,53 @@
     <link rel="stylesheet" href="assets/css/vlt-main.min.css" />
     <!--Custom-->
     <link rel="stylesheet" href="assets/css/custom.css" />
+    <style>
+      /* Enhanced Experience Section */
+      .vlt-timeline-item {
+        transition: transform 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      
+      .vlt-timeline-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      }
+      
+      .vlt-timeline-item__date {
+        font-weight: 600;
+        color: #6c757d;
+      }
+      
+      .vlt-timeline-item__title {
+        margin-top: 8px;
+        font-size: 1.25rem;
+      }
+      
+      .vlt-timeline-item__text {
+        line-height: 1.7;
+      }
+      
+      .tech-tag {
+        display: inline-block;
+        background: rgba(108, 117, 125, 0.1);
+        border-radius: 4px;
+        padding: 3px 8px;
+        margin: 3px 2px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      
+      .award-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 0.85rem;
+        margin-top: 10px;
+      }
+    </style>
   </head>
 
   <body class="animsition">
@@ -202,7 +249,7 @@
                       </p>
                       <br /><!--Button--><a
                         class="vlt-btn vlt-btn--primary vlt-btn--md"
-                        href="https://drive.google.com/file/d/1hLOBryoLAbofHXnP0GJO5xEWMa283ULU/view?usp=drive_link"
+                        href="https://github.com/nitishrmadhavan/nitishrmadhavan.github.io.git"
                         target="_blank"
                         >Resume</a
                       >
@@ -471,7 +518,6 @@
             <div class="vlt-section__content">
               <div class="container">
                 <div class="vlt-gap-70"></div>
-                <!--Animated Block-->
                 <div
                   class="vlt-animated-block"
                   data-animation-name="fadeInUpSm"
@@ -480,95 +526,91 @@
                   <div
                     class="d-block d-md-flex align-items-center justify-content-between"
                   >
-                    <h3>Experience</h3>
+                    <h3>Professional Experience</h3>
                     <div class="vlt-gap-30--sm"></div>
                   </div>
                 </div>
                 <div class="vlt-gap-50"></div>
-                <!--Animated Block-->
+                
+                <!-- Experience Timeline -->
                 <div
                   class="vlt-animated-block"
                   data-animation-name="fadeInUpSm"
                   style="animation-delay: 0.1s; animation-duration: 700ms"
                 >
-                  <!--Content slider-->
-                  <div
-                    class="vlt-content-slider"
-                    data-navigation-anchor=".vlt-education-anchor"
-                    data-effect=""
-                    data-gap="120"
-                    data-loop=""
-                    data-speed=""
-                    data-autoplay=""
-                    data-autoplay-speed=""
-                    data-slides-centered=""
-                    data-slide-settings="{}"
-                    data-free-mode=""
-                    data-slider-offset=""
-                    data-mousewheel=""
-                  >
-                    <div class="swiper-container">
-                      <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                          <!--Timeline Item-->
-                          <div class="vlt-timeline-item">
-                            <div class="row">
-                              <div class="col-xl-4">
-                                <a href="https://lentra.ai/">
-                                  <img
-                                    src="assets/img/root/LentraLogo.png"
-                                    target="_blank"
-                                    alt="Lentra AI"
-                                    loading="lazy"
-                                  />
-                                </a>
-                              </div>
-                              <div class="col-xl-4">
-                                <span class="vlt-timeline-item__date"
-                                  >July 2023 - May 2024</span
-                                >
-                                <h5 class="vlt-timeline-item__title">
-                                  Lentra.AI
-                                </h5>
-                              </div>
-                              <div class="col-xl-4">
-                                <h5>Graduate Intern - Data Engineer</h5>
-                                <br />
-                                <p class="vlt-timeline-item__text">
-                                  As a data engineer with a strong foundation in
-                                  tools like MongoDB, Debezium, Kafka, and more,
-                                  I have a proven track record of delivering
-                                  efficient and scalable data pipelines. I’ve
-                                  successfully worked in project, TransferX,
-                                  where I streamlined data processes for over
-                                  50,000 individuals and achieved a 30%
-                                  efficiency boost through automation. My
-                                  ability to collaborate effectively with
-                                  cross-functional teams and my full-stack
-                                  skillset have enabled me to drive innovation
-                                  and deliver high-quality results. Recognized
-                                  for my technical expertise, I was awarded the
-                                  "High Five Award" for exceptional data
-                                  engineering skills.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
+                  <!-- Audima Labs Experience -->
+                  <div class="vlt-timeline-item">
+                    <div class="row align-items-center">
+                      <div class="col-xl-3 col-lg-4 text-center mb-4 mb-lg-0">
+                        <a href="https://audimalabs.com/" target="_blank" class="d-inline-block">
+                          <img
+                            src="assets/img/root/AudimaLogo.png"
+                            alt="Audima Labs"
+                            loading="lazy"
+                            class="img-fluid"
+                            style="max-height: 80px;"
+                          />
+                        </a>
+                      </div>
+                      <div class="col-xl-3 col-lg-4">
+                        <span class="vlt-timeline-item__date">Nov 2024 - Feb 2025</span>
+                        <h5 class="vlt-timeline-item__title">Audima Labs</h5>
+                        <h5 class="mt-2">Software Engineer Intern</h5>
+                      </div>
+                      <div class="col-xl-6 col-lg-4">
+                        <p class="vlt-timeline-item__text">
+                          Developed SWAY Software, a cross-platform desktop application using ReactJS, TypeScript, and Rust with Tauri framework. Engineered end-to-end CI/CD pipelines via GitHub Actions, implementing automated testing (unit/integration/UI) and deployment workflows. Owned the full development lifecycle from architecture design to production deployment, integrating modern web technologies with system-level code for enhanced performance and cross-platform accessibility.
+                        </p>
+                        <div class="mt-3">
+                          <span class="tech-tag">ReactJS</span>
+                          <span class="tech-tag">TypeScript</span>
+                          <span class="tech-tag">Rust</span>
+                          <span class="tech-tag">Tauri</span>
+                          <span class="tech-tag">CI/CD</span>
+                          <span class="tech-tag">GitHub Actions</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div class="vlt-gap-75"></div>
-                  <!--Slider controls-->
-                  <!-- <div class="vlt-slider-controls vlt-slider-controls--style-2 vlt-education-anchor">
-									<div class="vlt-swiper-pagination"></div>
-									<div class="vlt-swiper-button-prev"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 45">
-											<defs />
-											<path fill="currentColor" fill-rule="evenodd" d="M1.36413 22.5795L24 43.9524l-.7271.6865L.272896 22.9223l.383716-.3623-.362754-.3367L23.0941.319721l.733.680233L1.36413 22.5795z" clip-rule="evenodd" /></svg></div>
-									<div class="vlt-swiper-button-next"><svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 45">
-											<defs />
-											<path fill-rule="evenodd" clip-rule="evenodd" d="M22.6359 22.3728L0 1.00001.727101.313477 23.7271 22.0301l-.3837.3623.3627.3367L.905866 44.6327l-.732997-.6803L22.6359 22.3728z" fill="currentColor" /></svg></div>
-								</div> -->
+                  
+                  <div class="vlt-gap-60"></div>
+                  
+                  <!-- Lentra.AI Experience -->
+                  <div class="vlt-timeline-item">
+                    <div class="row align-items-center">
+                      <div class="col-xl-3 col-lg-4 text-center mb-4 mb-lg-0">
+                        <a href="https://lentra.ai/" target="_blank" class="d-inline-block">
+                          <img
+                            src="assets/img/root/LentraLogo.png"
+                            alt="Lentra AI"
+                            loading="lazy"
+                            class="img-fluid"
+                            style="max-height: 80px;"
+                          />
+                        </a>
+                      </div>
+                      <div class="col-xl-3 col-lg-4">
+                        <span class="vlt-timeline-item__date">July 2023 - May 2024</span>
+                        <h5 class="vlt-timeline-item__title">Lentra.AI</h5>
+                        <h5 class="mt-2">Graduate Intern - Data Engineer</h5>
+                      </div>
+                      <div class="col-xl-6 col-lg-4">
+                        <p class="vlt-timeline-item__text">
+                          Designed and optimized ETL pipelines processing 50K+ records using MongoDB, Kafka, Spark and AWS Glue, achieving 30% efficiency gains in data transfers for the TransferX CDC project. Implemented batch processing systems with Airflow orchestration and HDFS/S3 storage solutions.
+                        </p>
+                        <div class="award-badge">High Five Award - Q3 2023</div>
+                        <div class="mt-3">
+                          <span class="tech-tag">MongoDB</span>
+                          <span class="tech-tag">Kafka</span>
+                          <span class="tech-tag">Spark</span>
+                          <span class="tech-tag">AWS Glue</span>
+                          <span class="tech-tag">Airflow</span>
+                          <span class="tech-tag">HDFS/S3</span>
+                          <span class="tech-tag">Debezium</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -619,7 +661,7 @@
                             >
                             <h3 class="vlt-post-title">
                               <a href="single-post.html"
-                                >Master of Computer Science</a
+                                >Master of Computer Science (Management)</a
                               >
                             </h3>
                             <br />
@@ -629,10 +671,16 @@
                           </header>
                           <div class="vlt-post-excerpt">
                             <p>
-                              Let years seasons given two fowl above is itself
-                              shall third night female seasons you’re whales,
-                              unto had fowl Herb. Moving so. Said be fruitful
-                              first lights creeping deep void, lesser.
+                             Grade: 6.33 / 7 CGPA<br></bRr>
+                             Relevant Coursework: Introduction to Software Innovation,
+                             Adv HCI, Software Architecture, Adv High Dimensional Data
+                             <br>
+                             <br>
+                             <br>
+                             <br>
+                             <br>
+                             <br>
+                             <br>
                             </p>
                           </div>
                           <footer class="vlt-post-footer">
@@ -696,8 +744,11 @@
                           </header>
                           <div class="vlt-post-excerpt">
                             <p>
-                              Let years seasons given two fowl above is itself
-                              shall third night.
+                              Grade: 8.22 / 10 CGPA<br></bRr>
+                              Relevant Coursework: Operating System Principles, Data Communication
+                              and Networks, Software Verification and Validation,
+                              Application Development and Deployment Architecture,
+                              Software Application Architecture.
                             </p>
                           </div>
                           <footer class="vlt-post-footer">
@@ -990,5 +1041,20 @@
     <script src="assets/scripts/vlt-plugins.min.js"></script>
     <script src="assets/scripts/vlt-helpers.js"></script>
     <script src="assets/scripts/vlt-controllers.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const timelineItems = document.querySelectorAll('.vlt-timeline-item');
+        
+        timelineItems.forEach(item => {
+          item.addEventListener('mouseenter', () => {
+            item.style.transform = 'translateY(-7px)';
+          });
+          
+          item.addEventListener('mouseleave', () => {
+            item.style.transform = 'translateY(0)';
+          });
+        });
+      });
+    </script>
   </body>
 </html>
