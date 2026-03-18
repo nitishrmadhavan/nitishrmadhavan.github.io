@@ -91,13 +91,13 @@ function ScrollBanner({ text, speed = 28, outlined = false, dark = false }) {
   );
 }
 
-function TechMarquee({ items, reverse = false, speed = 34 }) {
+function TechMarquee({ items, reverse = false, speed = 34, dark = false }) {
   const d = [...items, ...items];
   return (
     <div style={{ overflow: "hidden", width: "100%" }}>
       <div style={{ display: "flex", gap: "10px", width: "max-content", animation: `${reverse ? "bannerScrollR" : "bannerScroll"} ${speed}s linear infinite` }}>
         {d.map((item, i) => (
-          <span key={i} style={{ padding: "6px 16px", borderRadius: "999px", border: `1px solid ${C.border}`, background: C.white, color: C.muted, fontSize: "11px", fontFamily: F.mono, whiteSpace: "nowrap" }}>{item}</span>
+          <span key={i} style={{ padding: "6px 16px", borderRadius: "999px", border: `1px solid ${dark ? C.borderDark : C.border}`, background: dark ? C.darkSoft : C.white, color: dark ? C.darkMuted : C.muted, fontSize: "11px", fontFamily: F.mono, whiteSpace: "nowrap" }}>{item}</span>
         ))}
       </div>
     </div>
@@ -213,7 +213,7 @@ function Nav() {
 
 
 // ═══════════════════════════════════════════
-// CARD 0 — HERO
+// CARD 0 — HERO (dark, reference layout)
 // ═══════════════════════════════════════════
 function Hero() {
   const nameRef  = useRef(null);
@@ -221,78 +221,133 @@ function Hero() {
   const metaRef  = useRef(null);
   const badgeRef = useRef(null);
   const marqRef  = useRef(null);
+  const descRef  = useRef(null);
 
   useEffect(() => {
     const letters = nameRef.current?.querySelectorAll(".hl");
     if (!letters?.length) return;
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-    tl.fromTo(letters, { yPercent: 115, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: 0.028, duration: 1.0 }, 0)
-      .fromTo(photoRef.current, { clipPath: "inset(0 0 100% 0)", opacity: 0, scale: 1.14 }, { clipPath: "inset(0 0 0% 0)", opacity: 1, scale: 1, duration: 1.1, ease: "power3.inOut" }, 0.3)
-      .fromTo(metaRef.current, { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85 }, 0.55)
-      .fromTo(badgeRef.current, { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85 }, 0.65)
-      .fromTo(marqRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65 }, 0.82);
+    tl.fromTo(badgeRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, 0)
+      .fromTo(metaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, 0.15)
+      .fromTo(letters, { yPercent: 115, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: 0.025, duration: 1.0 }, 0.2)
+      .fromTo(photoRef.current, { clipPath: "inset(0 0 100% 0)", opacity: 0, scale: 1.08 }, { clipPath: "inset(0 0 0% 0)", opacity: 1, scale: 1, duration: 1.1, ease: "power3.inOut" }, 0.35)
+      .fromTo(descRef.current, { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85 }, 0.6)
+      .fromTo(marqRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65 }, 0.85);
     return () => tl.kill();
   }, []);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "80px clamp(20px,5vw,72px) 0" }}>
-        <div style={{ overflow: "hidden" }}>
-          <h1 ref={nameRef} className="hero-name" style={{
-            fontFamily: F.display, fontSize: "clamp(32px, 9.8vw, 172px)",
-            fontWeight: 700, color: C.dark, lineHeight: 0.88,
-            letterSpacing: "-0.03em", margin: 0, whiteSpace: "nowrap", userSelect: "none",
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", color: C.dark }}>
+      {/* Main content area */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px clamp(20px,5vw,72px) 0" }}>
+
+        {/* Badge row */}
+        <div ref={badgeRef} style={{ marginBottom: "clamp(24px,4vh,40px)" }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: "10px",
+            padding: "8px 20px", borderRadius: "999px",
+            border: `1px solid ${C.redBorder}`, background: C.redDim,
           }}>
-            {"NITISH MADHAVAN".split("").map((ch, i) => (
-              <span key={i} className="hl" style={{ display: "inline-block" }}>{ch === " " ? "\u00A0" : ch}</span>
-            ))}
-          </h1>
+            <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 8px #22C55E80", animation: "pulse 2s infinite", flexShrink: 0 }} />
+            <span style={{ color: C.red, fontSize: "11px", fontFamily: F.mono, letterSpacing: "0.1em" }}>OPEN TO WORK</span>
+            <span style={{ color: C.dim, fontSize: "11px", fontFamily: F.mono }}>·</span>
+            <span style={{ color: C.dark, fontSize: "11px", fontFamily: F.mono, letterSpacing: "0.08em" }}>MAR '26</span>
+          </div>
         </div>
 
+        {/* Two-column: left text, right photo */}
         <div className="hero-grid" style={{
-          display: "grid", gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "flex-end", gap: "clamp(12px,2.5vw,40px)",
-          padding: "clamp(20px,3vh,40px) 0 clamp(16px,2.2vh,28px)",
+          display: "grid", gridTemplateColumns: "1fr auto",
+          gap: "clamp(24px,5vw,80px)", alignItems: "center",
         }}>
-          <div ref={metaRef} className="hero-left" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            <p style={{ fontFamily: F.mono, fontSize: "10px", color: C.muted, letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>
+          {/* LEFT — text */}
+          <div>
+            {/* Subtitle */}
+            <p ref={metaRef} style={{
+              fontFamily: F.mono, fontSize: "clamp(10px,1vw,13px)", color: C.muted,
+              letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 clamp(16px,2.5vh,28px)",
+            }}>
               Data Engineer · Software Developer · Mentor
             </p>
-            <p style={{ fontFamily: F.body, fontSize: "clamp(12px,1.2vw,15px)", color: C.muted, maxWidth: "34ch", lineHeight: 1.72, margin: 0 }}>
-              I build data systems that run reliably, reduce cloud costs, and support real‑time decisions for the teams that depend on them.
-            </p>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              <a href="#contact" style={{ padding: "11px 24px", borderRadius: "999px", background: C.dark, color: C.cream, textDecoration: "none", fontFamily: F.body, fontWeight: 700, fontSize: "12px", letterSpacing: "0.04em", transition: "background 0.25s, transform 0.25s" }}
-                onMouseEnter={e => { e.currentTarget.style.background = C.red; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = C.dark; e.currentTarget.style.transform = "none"; }}>LET'S TALK ↗</a>
-              <a href="#work" style={{ padding: "11px 24px", borderRadius: "999px", border: `1px solid ${C.border}`, color: C.dark, textDecoration: "none", fontFamily: F.body, fontWeight: 500, fontSize: "12px", transition: "border-color 0.3s" }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = C.red} onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>MY WORK →</a>
+
+            {/* Name — NITISH white, MADHAVAN red italic */}
+            <div style={{ overflow: "hidden", marginBottom: "clamp(20px,3.5vh,36px)" }}>
+              <h1 ref={nameRef} className="hero-name" style={{
+                fontFamily: F.display, fontSize: "clamp(40px, 8.5vw, 140px)",
+                fontWeight: 700, lineHeight: 0.92,
+                letterSpacing: "-0.03em", margin: 0, userSelect: "none",
+              }}>
+                {"NITISH".split("").map((ch, i) => (
+                  <span key={i} className="hl" style={{ display: "inline-block", color: C.dark }}>
+                    {ch}
+                  </span>
+                ))}
+                <br />
+                {"MADHAVAN".split("").map((ch, i) => (
+                  <span key={i + 10} className="hl" style={{ display: "inline-block", color: C.red, fontStyle: "italic" }}>
+                    {ch}
+                  </span>
+                ))}
+              </h1>
             </div>
-            <p style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, letterSpacing: "0.08em", margin: 0 }}>📍 BRISBANE, AUSTRALIA</p>
+
+            {/* Description + buttons */}
+            <div ref={descRef}>
+              <p style={{
+                fontFamily: F.body, fontSize: "clamp(14px,1.3vw,18px)",
+                color: C.muted, maxWidth: "42ch", lineHeight: 1.72, margin: "0 0 clamp(20px,3vh,32px)",
+              }}>
+                I build data systems that run reliably, reduce cloud costs, and support real‑time decisions for the teams that depend on them.
+              </p>
+
+              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "clamp(20px,3vh,32px)" }}>
+                <a href="#contact" style={{
+                  padding: "13px 32px", borderRadius: "999px", background: C.dark,
+                  color: C.cream, textDecoration: "none", fontFamily: F.body,
+                  fontWeight: 700, fontSize: "13px", letterSpacing: "0.04em",
+                  transition: "background 0.25s, transform 0.25s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = C.red; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = C.dark; e.currentTarget.style.transform = "none"; }}>
+                  LET'S TALK
+                </a>
+                <a href="#work" style={{
+                  padding: "13px 32px", borderRadius: "999px",
+                  border: `1px solid ${C.border}`, color: C.dark,
+                  textDecoration: "none", fontFamily: F.body, fontWeight: 500,
+                  fontSize: "13px", transition: "border-color 0.3s",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = C.red}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
+                  MY WORK →
+                </a>
+              </div>
+
+              {/* Location cities */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, letterSpacing: "0.12em" }}>
+                  📍 BRISBANE, AUSTRALIA
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="hero-photo-wrap" style={{ display: "flex", justifyContent: "center", alignSelf: "flex-end" }}>
+          {/* RIGHT — photo */}
+          <div className="hero-photo-wrap" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div ref={photoRef} style={{
-              width: "clamp(120px,15vw,240px)", aspectRatio: "3/4",
-              borderRadius: "12px", overflow: "hidden",
-              border: `2.5px solid ${C.red}`, boxShadow: `8px 8px 0 ${C.red}22`,
-              transform: "translateY(clamp(18px,3vh,40px))", position: "relative", zIndex: 2,
+              width: "clamp(180px,22vw,340px)", aspectRatio: "3/4",
+              borderRadius: "16px", overflow: "hidden",
+              border: `3px solid ${C.red}`,
+              boxShadow: `8px 8px 0 ${C.red}22`,
             }}>
               <SafeImage src="/hero-nitish.jpg" alt="Nitish Madhavan" placeholderLabel="NITISH"
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", filter: "grayscale(8%)" }} />
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
             </div>
-          </div>
-
-          <div ref={badgeRef} className="hero-right" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", justifyContent: "flex-end" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "5px 14px", borderRadius: "999px", border: `1px solid ${C.redBorder}`, background: C.redDim }}>
-              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 8px #22C55E80", animation: "pulse 2s infinite", flexShrink: 0 }} />
-              <span style={{ color: C.red, fontSize: "10px", fontFamily: F.mono, letterSpacing: "0.1em" }}>OPEN TO WORK</span>
-            </div>
-            <p className="hero-date" style={{ fontFamily: F.display, fontSize: "clamp(24px,5vw,76px)", fontWeight: 700, color: C.dark, letterSpacing: "-0.03em", lineHeight: 1, margin: 0, textAlign: "right" }}>MAR '26</p>
           </div>
         </div>
       </div>
 
+      {/* Tech marquee */}
       <div ref={marqRef} style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "16px 0" }}>
         <TechMarquee items={["Python", "Java", "SQL", "Rust", "TypeScript", "JavaScript", "Spring", "Flask", "Spark"]} speed={36} />
         <TechMarquee items={["MongoDB", "Kafka", "Airflow", "AWS Glue", "S3", "HDFS", "PostgreSQL", "Docker", "Jenkins"]} reverse speed={32} />
@@ -659,20 +714,18 @@ export default function Portfolio() {
         @media (max-width: 768px) {
           .dsk-nav { display: none !important; }
           .mob-nav { display: block !important; }
-          .hero-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
-          .hero-name { font-size: clamp(28px, 10vw, 48px) !important; white-space: normal !important; line-height: 0.95 !important; }
-          .hero-photo-wrap { order: -1; justify-content: flex-start !important; }
-          .hero-photo-wrap > div { transform: none !important; width: 120px !important; }
-          .hero-right { align-items: flex-start !important; }
-          .hero-date { text-align: left !important; }
+          .hero-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+          .hero-name { font-size: clamp(36px, 12vw, 56px) !important; }
+          .hero-photo-wrap { order: -1; align-items: flex-start !important; }
+          .hero-photo-wrap > div:first-child { width: 140px !important; }
           .work-grid { grid-template-columns: 1fr !important; }
           .work-num-col { display: none !important; }
           .svc-row { grid-template-columns: 1fr !important; gap: 8px !important; }
         }
         @media (min-width: 769px) { .mob-nav { display: none !important; } }
         @media (min-width: 769px) and (max-width: 1024px) {
-          .hero-grid { gap: 16px !important; }
-          .hero-photo-wrap > div { width: 140px !important; }
+          .hero-grid { gap: 24px !important; }
+          .hero-photo-wrap > div:first-child { width: 180px !important; }
         }
       `}</style>
 
