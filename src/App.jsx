@@ -29,7 +29,8 @@ function FadeIn({ children, delay = 0, y = 36, style = {}, className = "" }) {
   const [vis, setVis] = useState(false);
   useEffect(() => {
     const el = ref.current; if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.08 });
+    const root = el.closest(".card-scroll") || null;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { root, threshold: 0.08 });
     obs.observe(el); return () => obs.disconnect();
   }, []);
   return (
@@ -48,7 +49,8 @@ function useCounter(end, dur = 2000) {
   const [go, setGo] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setGo(true); }, { threshold: 0.3 });
+    const root = ref.current?.closest(".card-scroll") || null;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setGo(true); }, { root, threshold: 0.3 });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
@@ -118,16 +120,18 @@ function Modal({ open, onClose, children }) {
   );
 }
 
+// ─── GSAP: Letter-by-letter reveal ───
 function LetterReveal({ text, tag: Tag = "h2", style = {}, start = "top 85%", className = "" }) {
   const ref = useRef(null);
   useEffect(() => {
     const ctx = gsap.context(() => {
       const letters = ref.current?.querySelectorAll(".gl");
       if (!letters?.length) return;
+      const scroller = ref.current.closest(".card-scroll");
       gsap.fromTo(letters,
         { y: "106%", opacity: 0 },
         { y: 0, opacity: 1, stagger: 0.028, duration: 0.9, ease: "power3.out",
-          scrollTrigger: { trigger: ref.current, start } }
+          scrollTrigger: { trigger: ref.current, start, scroller } }
       );
     });
     return () => ctx.revert();
@@ -143,16 +147,18 @@ function LetterReveal({ text, tag: Tag = "h2", style = {}, start = "top 85%", cl
   );
 }
 
+// ─── GSAP: Word-by-word reveal ───
 function WordReveal({ children, style = {}, start = "top 88%" }) {
   const ref = useRef(null);
   useEffect(() => {
     const ctx = gsap.context(() => {
       const words = ref.current?.querySelectorAll(".gw");
       if (!words?.length) return;
+      const scroller = ref.current.closest(".card-scroll");
       gsap.fromTo(words,
         { y: "120%", opacity: 0 },
         { y: 0, opacity: 1, stagger: 0.018, duration: 0.75, ease: "power3.out",
-          scrollTrigger: { trigger: ref.current, start } }
+          scrollTrigger: { trigger: ref.current, start, scroller } }
       );
     });
     return () => ctx.revert();
@@ -167,7 +173,6 @@ function WordReveal({ children, style = {}, start = "top 88%" }) {
     </p>
   );
 }
-
 
 // ═══════════════════════════════════════════
 // NAVIGATION
@@ -199,7 +204,6 @@ function Nav() {
           <a key={l.l} href={l.h} style={{ textDecoration: "none", color: C.muted, fontSize: "12px", fontFamily: F.body, fontWeight: 500, letterSpacing: "0.04em", transition: "color 0.25s" }}
             onMouseEnter={e => e.target.style.color = C.red} onMouseLeave={e => e.target.style.color = C.muted}>{l.l}</a>
         ))}
-
       </div>
       <button className="mob-nav" onClick={() => setMob(!mob)} style={{ display: "none", background: "none", border: "none", color: C.dark, fontSize: "22px", cursor: "pointer" }}>{mob ? "✕" : "☰"}</button>
       {mob && (
@@ -211,9 +215,8 @@ function Nav() {
   );
 }
 
-
 // ═══════════════════════════════════════════
-// CARD 0 — HERO (dark, reference layout)
+// HERO
 // ═══════════════════════════════════════════
 function Hero() {
   const nameRef  = useRef(null);
@@ -237,17 +240,12 @@ function Hero() {
   }, []);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", color: C.dark }}>
-      {/* Main content area */}
+    // card-scroll: inner scrollable wrapper
+    <div className="card-scroll" style={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column" }}>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "100px clamp(20px,5vw,72px) 0" }}>
-
         {/* Badge row */}
         <div ref={badgeRef} style={{ marginBottom: "clamp(24px,4vh,40px)" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "10px",
-            padding: "8px 20px", borderRadius: "999px",
-            border: `1px solid ${C.redBorder}`, background: C.redDim,
-          }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "8px 20px", borderRadius: "999px", border: `1px solid ${C.redBorder}`, background: C.redDim }}>
             <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 8px #22C55E80", animation: "pulse 2s infinite", flexShrink: 0 }} />
             <span style={{ color: C.red, fontSize: "11px", fontFamily: F.mono, letterSpacing: "0.1em" }}>OPEN TO WORK</span>
             <span style={{ color: C.dim, fontSize: "11px", fontFamily: F.mono }}>·</span>
@@ -255,91 +253,43 @@ function Hero() {
           </div>
         </div>
 
-        {/* Two-column: left text, right photo */}
-        <div className="hero-grid" style={{
-          display: "grid", gridTemplateColumns: "1fr auto",
-          gap: "clamp(24px,5vw,80px)", alignItems: "center",
-        }}>
-          {/* LEFT — text */}
+        {/* Two-column grid */}
+        <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "clamp(24px,5vw,80px)", alignItems: "center" }}>
+          {/* LEFT */}
           <div>
-            {/* Subtitle */}
-            <p ref={metaRef} style={{
-              fontFamily: F.mono, fontSize: "clamp(10px,1vw,13px)", color: C.muted,
-              letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 clamp(16px,2.5vh,28px)",
-            }}>
+            <p ref={metaRef} style={{ fontFamily: F.mono, fontSize: "clamp(10px,1vw,13px)", color: C.muted, letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 clamp(16px,2.5vh,28px)" }}>
               Data Engineer · Software Developer · Mentor
             </p>
-
-            {/* Name — NITISH white, MADHAVAN red italic */}
             <div style={{ overflow: "hidden", marginBottom: "clamp(20px,3.5vh,36px)" }}>
-              <h1 ref={nameRef} className="hero-name" style={{
-                fontFamily: F.display, fontSize: "clamp(40px, 8.5vw, 140px)",
-                fontWeight: 700, lineHeight: 0.92,
-                letterSpacing: "-0.03em", margin: 0, userSelect: "none",
-              }}>
+              <h1 ref={nameRef} className="hero-name" style={{ fontFamily: F.display, fontSize: "clamp(40px, 8.5vw, 140px)", fontWeight: 700, lineHeight: 0.92, letterSpacing: "-0.03em", margin: 0, userSelect: "none" }}>
                 {"NITISH".split("").map((ch, i) => (
-                  <span key={i} className="hl" style={{ display: "inline-block", color: C.dark }}>
-                    {ch}
-                  </span>
+                  <span key={i} className="hl" style={{ display: "inline-block", color: C.dark }}>{ch}</span>
                 ))}
                 <br />
                 {"MADHAVAN".split("").map((ch, i) => (
-                  <span key={i + 10} className="hl" style={{ display: "inline-block", color: C.red, fontStyle: "italic" }}>
-                    {ch}
-                  </span>
+                  <span key={i + 10} className="hl" style={{ display: "inline-block", color: C.red, fontStyle: "italic" }}>{ch}</span>
                 ))}
               </h1>
             </div>
-
-            {/* Description + buttons */}
             <div ref={descRef}>
-              <p style={{
-                fontFamily: F.body, fontSize: "clamp(14px,1.3vw,18px)",
-                color: C.muted, maxWidth: "42ch", lineHeight: 1.72, margin: "0 0 clamp(20px,3vh,32px)",
-              }}>
+              <p style={{ fontFamily: F.body, fontSize: "clamp(14px,1.3vw,18px)", color: C.muted, maxWidth: "42ch", lineHeight: 1.72, margin: "0 0 clamp(20px,3vh,32px)" }}>
                 I build data systems that run reliably, reduce cloud costs, and support real‑time decisions for the teams that depend on them.
               </p>
-
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "clamp(20px,3vh,32px)" }}>
-                <a href="#contact" style={{
-                  padding: "13px 32px", borderRadius: "999px", background: C.dark,
-                  color: C.cream, textDecoration: "none", fontFamily: F.body,
-                  fontWeight: 700, fontSize: "13px", letterSpacing: "0.04em",
-                  transition: "background 0.25s, transform 0.25s",
-                }}
+                <a href="#contact" style={{ padding: "13px 32px", borderRadius: "999px", background: C.dark, color: C.cream, textDecoration: "none", fontFamily: F.body, fontWeight: 700, fontSize: "13px", letterSpacing: "0.04em", transition: "background 0.25s, transform 0.25s" }}
                   onMouseEnter={e => { e.currentTarget.style.background = C.red; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = C.dark; e.currentTarget.style.transform = "none"; }}>
-                  LET'S TALK
-                </a>
-                <a href="#work" style={{
-                  padding: "13px 32px", borderRadius: "999px",
-                  border: `1px solid ${C.border}`, color: C.dark,
-                  textDecoration: "none", fontFamily: F.body, fontWeight: 500,
-                  fontSize: "13px", transition: "border-color 0.3s",
-                }}
+                  onMouseLeave={e => { e.currentTarget.style.background = C.dark; e.currentTarget.style.transform = "none"; }}>LET'S TALK</a>
+                <a href="#work" style={{ padding: "13px 32px", borderRadius: "999px", border: `1px solid ${C.border}`, color: C.dark, textDecoration: "none", fontFamily: F.body, fontWeight: 500, fontSize: "13px", transition: "border-color 0.3s" }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = C.red}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
-                  MY WORK →
-                </a>
+                  onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>MY WORK →</a>
               </div>
-
-              {/* Location cities */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, letterSpacing: "0.12em" }}>
-                  📍 BRISBANE, AUSTRALIA
-                </span>
-              </div>
+              <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, letterSpacing: "0.12em" }}>📍 BRISBANE, AUSTRALIA</span>
             </div>
           </div>
 
           {/* RIGHT — photo */}
           <div className="hero-photo-wrap" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div ref={photoRef} style={{
-              width: "clamp(180px,22vw,340px)", aspectRatio: "3/4",
-              borderRadius: "16px", overflow: "hidden",
-              border: `3px solid ${C.red}`,
-              boxShadow: `8px 8px 0 ${C.red}22`,
-            }}>
+            <div ref={photoRef} style={{ width: "clamp(180px,22vw,340px)", aspectRatio: "3/4", borderRadius: "16px", overflow: "hidden", border: `3px solid ${C.red}`, boxShadow: `8px 8px 0 ${C.red}22` }}>
               <SafeImage src="/hero-nitish.jpg" alt="Nitish Madhavan" placeholderLabel="NITISH"
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
             </div>
@@ -347,8 +297,8 @@ function Hero() {
         </div>
       </div>
 
-      {/* Tech marquee */}
-      <div ref={marqRef} style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "16px 0" }}>
+      {/* Tech marquee pinned to bottom */}
+      <div ref={marqRef} style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "24px 0 16px" }}>
         <TechMarquee items={["Python", "Java", "SQL", "Rust", "TypeScript", "JavaScript", "Spring", "Flask", "Spark"]} speed={36} />
         <TechMarquee items={["MongoDB", "Kafka", "Airflow", "AWS Glue", "S3", "HDFS", "PostgreSQL", "Docker", "Jenkins"]} reverse speed={32} />
       </div>
@@ -356,9 +306,8 @@ function Hero() {
   );
 }
 
-
 // ═══════════════════════════════════════════
-// CARD 1 — SERVICES
+// SERVICES
 // ═══════════════════════════════════════════
 function Services() {
   const services = [
@@ -368,50 +317,51 @@ function Services() {
   ];
 
   return (
-    <div style={{ padding: "clamp(72px,11vh,110px) clamp(20px,5vw,72px) clamp(60px,8vh,80px)" }}>
-      <LetterReveal text="What I Do /" tag="h2" style={{
-        fontFamily: F.body, fontSize: "clamp(32px,7vw,96px)", fontWeight: 700,
-        color: C.cream, letterSpacing: "-0.03em", lineHeight: 1,
-        textTransform: "uppercase", marginBottom: "clamp(20px,3vh,36px)",
-      }} start="top 90%" />
+    <div className="card-scroll" style={{ height: "100%", overflowY: "auto" }}>
+      <div style={{ padding: "clamp(72px,11vh,110px) clamp(20px,5vw,72px) clamp(60px,8vh,80px)" }}>
+        <LetterReveal text="What I Do /" tag="h2" style={{
+          fontFamily: F.body, fontSize: "clamp(32px,7vw,96px)", fontWeight: 700,
+          color: C.cream, letterSpacing: "-0.03em", lineHeight: 1,
+          textTransform: "uppercase", marginBottom: "clamp(20px,3vh,36px)",
+        }} start="top 90%" />
 
-      <div style={{ display: "flex", gap: "clamp(24px,6vw,80px)", flexWrap: "wrap", alignItems: "flex-start", marginBottom: "clamp(36px,5vh,56px)" }}>
-        <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.darkDim, letterSpacing: "0.1em", whiteSpace: "nowrap", paddingTop: "4px" }}>(Services)</span>
-        <WordReveal style={{ fontFamily: F.body, fontSize: "clamp(14px,1.5vw,18px)", color: C.darkMuted, maxWidth: "44ch", lineHeight: 1.7, fontWeight: 300 }} start="top 90%">
-          I build reliable, cost‑efficient data systems and full‑stack applications that turn raw data into clear, actionable decisions.
-        </WordReveal>
-      </div>
+        <div style={{ display: "flex", gap: "clamp(24px,6vw,80px)", flexWrap: "wrap", alignItems: "flex-start", marginBottom: "clamp(36px,5vh,56px)" }}>
+          <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.darkDim, letterSpacing: "0.1em", whiteSpace: "nowrap", paddingTop: "4px" }}>(Services)</span>
+          <WordReveal style={{ fontFamily: F.body, fontSize: "clamp(14px,1.5vw,18px)", color: C.darkMuted, maxWidth: "44ch", lineHeight: 1.7, fontWeight: 300 }} start="top 90%">
+            I build reliable, cost‑efficient data systems and full‑stack applications that turn raw data into clear, actionable decisions.
+          </WordReveal>
+        </div>
 
-      <div>
-        {services.map((sv, i) => (
-          <FadeIn key={i} delay={i * 0.08}>
-            <div style={{ borderTop: `1px solid ${C.borderDark}`, padding: "clamp(28px,4vh,44px) 0" }}>
-              <div className="svc-row" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "clamp(20px,4vw,60px)", alignItems: "start" }}>
-                <span style={{ fontFamily: F.mono, fontSize: "clamp(13px,1.4vw,18px)", color: C.darkDim, fontWeight: 500, paddingTop: "4px" }}>({sv.num})</span>
-                <div>
-                  <h3 style={{ fontFamily: F.body, fontSize: "clamp(20px,3.2vw,48px)", color: C.cream, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 clamp(12px,2vh,20px)", lineHeight: 1.1 }}>{sv.title}</h3>
-                  <p style={{ fontFamily: F.body, fontSize: "clamp(13px,1.25vw,15px)", color: C.darkMuted, maxWidth: "52ch", lineHeight: 1.8, margin: "0 0 clamp(18px,2.5vh,28px)", fontWeight: 300 }}>{sv.desc}</p>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    {sv.subs.map((sub, j) => (
-                      <div key={j} style={{ display: "flex", alignItems: "center", gap: "clamp(14px,2.5vw,28px)", padding: "clamp(10px,1.4vh,16px) 0", borderTop: `1px solid ${C.borderDark}` }}>
-                        <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.darkDim, minWidth: "22px", flexShrink: 0 }}>{sub.n}</span>
-                        <span style={{ fontFamily: F.body, fontSize: "clamp(14px,1.8vw,24px)", color: C.cream2, fontWeight: 600, letterSpacing: "-0.01em" }}>{sub.t}</span>
-                      </div>
-                    ))}
+        <div>
+          {services.map((sv, i) => (
+            <FadeIn key={i} delay={i * 0.08}>
+              <div style={{ borderTop: `1px solid ${C.borderDark}`, padding: "clamp(28px,4vh,44px) 0" }}>
+                <div className="svc-row" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "clamp(20px,4vw,60px)", alignItems: "start" }}>
+                  <span style={{ fontFamily: F.mono, fontSize: "clamp(13px,1.4vw,18px)", color: C.darkDim, fontWeight: 500, paddingTop: "4px" }}>({sv.num})</span>
+                  <div>
+                    <h3 style={{ fontFamily: F.body, fontSize: "clamp(20px,3.2vw,48px)", color: C.cream, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 clamp(12px,2vh,20px)", lineHeight: 1.1 }}>{sv.title}</h3>
+                    <p style={{ fontFamily: F.body, fontSize: "clamp(13px,1.25vw,15px)", color: C.darkMuted, maxWidth: "52ch", lineHeight: 1.8, margin: "0 0 clamp(18px,2.5vh,28px)", fontWeight: 300 }}>{sv.desc}</p>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      {sv.subs.map((sub, j) => (
+                        <div key={j} style={{ display: "flex", alignItems: "center", gap: "clamp(14px,2.5vw,28px)", padding: "clamp(10px,1.4vh,16px) 0", borderTop: `1px solid ${C.borderDark}` }}>
+                          <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.darkDim, minWidth: "22px", flexShrink: 0 }}>{sub.n}</span>
+                          <span style={{ fontFamily: F.body, fontSize: "clamp(14px,1.8vw,24px)", color: C.cream2, fontWeight: 600, letterSpacing: "-0.01em" }}>{sub.t}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </FadeIn>
-        ))}
+            </FadeIn>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-
 // ═══════════════════════════════════════════
-// CARD 2 — EXPERIENCE
+// EXPERIENCE
 // ═══════════════════════════════════════════
 function Work() {
   const digitColRef = useRef(null);
@@ -430,8 +380,10 @@ function Work() {
     const ctx = gsap.context(() => {
       itemRefs.forEach((ref, i) => {
         if (!ref.current || !digitColRef.current) return;
+        const scroller = ref.current.closest(".card-scroll");
         ScrollTrigger.create({
           trigger: ref.current,
+          scroller,
           start: "top 60%",
           onEnter: () => slideDigitTo(i),
           onEnterBack: () => slideDigitTo(i),
@@ -448,69 +400,71 @@ function Work() {
   }, []);
 
   return (
-    <div style={{ padding: "clamp(72px,11vh,110px) clamp(20px,5vw,72px) clamp(72px,11vh,110px)" }}>
-      <LetterReveal text="Experience /" tag="h2" style={{
-        fontFamily: F.display, fontSize: "clamp(32px,7vw,96px)",
-        fontWeight: 700, fontStyle: "italic", color: C.dark,
-        letterSpacing: "-0.02em", lineHeight: 1, marginBottom: "clamp(20px,3vh,36px)",
-      }} start="top 88%" />
+    <div className="card-scroll" style={{ height: "100%", overflowY: "auto" }}>
+      <div style={{ padding: "clamp(72px,11vh,110px) clamp(20px,5vw,72px) clamp(72px,11vh,110px)" }}>
+        <LetterReveal text="Experience /" tag="h2" style={{
+          fontFamily: F.display, fontSize: "clamp(32px,7vw,96px)",
+          fontWeight: 700, fontStyle: "italic", color: C.dark,
+          letterSpacing: "-0.02em", lineHeight: 1, marginBottom: "clamp(20px,3vh,36px)",
+        }} start="top 88%" />
 
-      <div style={{ display: "flex", gap: "clamp(24px,6vw,80px)", flexWrap: "wrap", alignItems: "flex-start", marginBottom: "clamp(48px,7vh,80px)" }}>
-        <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.dim, letterSpacing: "0.1em", whiteSpace: "nowrap", paddingTop: "5px" }}>(WHERE I'VE BUILT)</span>
-        <WordReveal style={{ fontFamily: F.body, fontSize: "clamp(14px,1.5vw,17px)", color: C.muted, maxWidth: "42ch", lineHeight: 1.7 }} start="top 88%">
-          Three countries. Three cultures. Each one sharpened how I build, communicate, and lead under pressure.
-        </WordReveal>
-      </div>
-
-      <div className="work-grid" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "clamp(20px,5vw,72px)", alignItems: "start" }}>
-        <div className="work-num-col" style={{
-          position: "sticky", top: "80px", height: "fit-content", userSelect: "none",
-          lineHeight: 1, display: "flex", fontSize: "clamp(80px,15vw,220px)",
-          fontFamily: F.body, fontWeight: 700, color: C.dark, opacity: 0.07, letterSpacing: "-0.04em",
-        }}>
-          <span style={{ display: "inline-block" }}>0</span>
-          <div style={{ display: "inline-block", overflow: "hidden", height: "1em" }}>
-            <div ref={digitColRef} style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ display: "block", lineHeight: 1 }}>1</span>
-              <span style={{ display: "block", lineHeight: 1 }}>2</span>
-              <span style={{ display: "block", lineHeight: 1 }}>3</span>
-            </div>
-          </div>
+        <div style={{ display: "flex", gap: "clamp(24px,6vw,80px)", flexWrap: "wrap", alignItems: "flex-start", marginBottom: "clamp(48px,7vh,80px)" }}>
+          <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.dim, letterSpacing: "0.1em", whiteSpace: "nowrap", paddingTop: "5px" }}>(WHERE I'VE BUILT)</span>
+          <WordReveal style={{ fontFamily: F.body, fontSize: "clamp(14px,1.5vw,17px)", color: C.muted, maxWidth: "42ch", lineHeight: 1.7 }} start="top 88%">
+            Three countries. Three cultures. Each one sharpened how I build, communicate, and lead under pressure.
+          </WordReveal>
         </div>
 
-        <div>
-          {jobs.map((j, i) => (
-            <div key={i} ref={itemRefs[i]} style={{ padding: "clamp(28px,4vh,56px) 0", borderTop: `1px solid ${C.border}` }}>
-              <div className="job-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "8px" }}>
-                <div>
-                  <p style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.1em", margin: "0 0 6px", textTransform: "uppercase" }}>{j.country}</p>
-                  <h3 style={{ fontFamily: F.body, fontSize: "clamp(18px,2.4vw,28px)", color: C.dark, fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.02em" }}>{j.role}</h3>
-                  <p style={{ fontFamily: F.body, fontSize: "13px", color: C.red, margin: 0, fontWeight: 500 }}>{j.company} · {j.loc}</p>
-                </div>
-                <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, padding: "5px 14px", borderRadius: "999px", border: `1px solid ${C.border}`, whiteSpace: "nowrap", alignSelf: "flex-start" }}>{j.period}</span>
-              </div>
-              {j.highlight && (
-                <div style={{ margin: "12px 0", padding: "5px 14px", borderRadius: "8px", background: C.redDim, border: `1px solid ${C.redBorder}`, display: "inline-block" }}>
-                  <span style={{ fontFamily: F.body, fontSize: "11px", color: C.red, fontWeight: 600 }}>{j.highlight}</span>
-                </div>
-              )}
-              <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.78, margin: "14px 0 18px", maxWidth: "54ch" }}>{j.desc}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                {j.tags.map((t, k) => (<span key={k} style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, padding: "4px 12px", borderRadius: "999px", border: `1px solid ${C.border}`, background: C.white }}>{t}</span>))}
+        <div className="work-grid" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "clamp(20px,5vw,72px)", alignItems: "start" }}>
+          {/* Sticky digit — sticky within .card-scroll viewport */}
+          <div className="work-num-col" style={{
+            position: "sticky", top: "80px", height: "fit-content", userSelect: "none",
+            lineHeight: 1, display: "flex", fontSize: "clamp(80px,15vw,220px)",
+            fontFamily: F.body, fontWeight: 700, color: C.dark, opacity: 0.07, letterSpacing: "-0.04em",
+          }}>
+            <span style={{ display: "inline-block" }}>0</span>
+            <div style={{ display: "inline-block", overflow: "hidden", height: "1em" }}>
+              <div ref={digitColRef} style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ display: "block", lineHeight: 1 }}>1</span>
+                <span style={{ display: "block", lineHeight: 1 }}>2</span>
+                <span style={{ display: "block", lineHeight: 1 }}>3</span>
               </div>
             </div>
-          ))}
-          <div style={{ borderTop: `1px solid ${C.border}` }} />
-          <ScrollBanner text="DATA ENGINEER — CLOUD COST OPTIMIZER — BUILDER" speed={28} />
+          </div>
+
+          <div>
+            {jobs.map((j, i) => (
+              <div key={i} ref={itemRefs[i]} style={{ padding: "clamp(28px,4vh,56px) 0", borderTop: `1px solid ${C.border}` }}>
+                <div className="job-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "8px" }}>
+                  <div>
+                    <p style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.1em", margin: "0 0 6px", textTransform: "uppercase" }}>{j.country}</p>
+                    <h3 style={{ fontFamily: F.body, fontSize: "clamp(18px,2.4vw,28px)", color: C.dark, fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.02em" }}>{j.role}</h3>
+                    <p style={{ fontFamily: F.body, fontSize: "13px", color: C.red, margin: 0, fontWeight: 500 }}>{j.company} · {j.loc}</p>
+                  </div>
+                  <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, padding: "5px 14px", borderRadius: "999px", border: `1px solid ${C.border}`, whiteSpace: "nowrap", alignSelf: "flex-start" }}>{j.period}</span>
+                </div>
+                {j.highlight && (
+                  <div style={{ margin: "12px 0", padding: "5px 14px", borderRadius: "8px", background: C.redDim, border: `1px solid ${C.redBorder}`, display: "inline-block" }}>
+                    <span style={{ fontFamily: F.body, fontSize: "11px", color: C.red, fontWeight: 600 }}>{j.highlight}</span>
+                  </div>
+                )}
+                <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.78, margin: "14px 0 18px", maxWidth: "54ch" }}>{j.desc}</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {j.tags.map((t, k) => (<span key={k} style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim, padding: "4px 12px", borderRadius: "999px", border: `1px solid ${C.border}`, background: C.white }}>{t}</span>))}
+                </div>
+              </div>
+            ))}
+            <div style={{ borderTop: `1px solid ${C.border}` }} />
+            <ScrollBanner text="DATA ENGINEER — CLOUD COST OPTIMIZER — BUILDER" speed={28} />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-
 // ═══════════════════════════════════════════
-// CARD 3 — ABOUT
+// ABOUT
 // ═══════════════════════════════════════════
 function About() {
   const [c1, r1] = useCounter(50000, 2000);
@@ -532,162 +486,189 @@ function About() {
   ];
 
   return (
-    <div style={{ padding: "clamp(72px,10vh,100px) clamp(20px,5vw,72px) clamp(72px,10vh,100px)" }}>
-      <FadeIn>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px", marginBottom: "40px" }}>
-          <h2 style={{ fontFamily: F.display, fontSize: "clamp(32px,6vw,68px)", fontWeight: 700, color: C.dark, lineHeight: 1, margin: 0 }}>About Me <span style={{ fontStyle: "italic", color: C.red }}>/</span></h2>
-          <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.dim, letterSpacing: "0.1em" }}>(THE HUMAN)</span>
-        </div>
-      </FadeIn>
-
-      <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "36px" }}>
-        <FadeIn delay={0.1}>
-          <div>
-            <p style={{ fontFamily: F.display, fontSize: "clamp(18px,2.2vw,26px)", color: C.dark, fontWeight: 600, fontStyle: "italic", lineHeight: 1.45, margin: "0 0 20px" }}>
-              "I turn complexity into clarity, raw data into decisions, and nervous first‑years into confident professionals."
-            </p>
-            <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.75, margin: "0 0 12px" }}>
-              I'm Nitish Madhavan — from Bengaluru to Vellore to Brisbane to Shanghai. Every move taught me how to work with people who think, build, and communicate completely differently.
-            </p>
-            <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.75, margin: "0 0 12px" }}>
-              At <span style={{ color: C.dark, fontWeight: 600 }}>Lentra.AI</span>, I helped reduce data transfer time and cost by about 30%. At <span style={{ color: C.dark, fontWeight: 600 }}>Audima Labs</span>, I shipped a cross‑platform desktop app end‑to‑end. At <span style={{ color: C.dark, fontWeight: 600 }}>YuLan</span>, I built ORM tools while getting up to speed in a completely new culture.
-            </p>
-            <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.75, margin: 0 }}>
-              My thesis focuses on making ETL pipelines more efficient in resource‑constrained cloud environments — targeting around 25% less wasted compute while keeping compliance intact.
-            </p>
+    <div className="card-scroll" style={{ height: "100%", overflowY: "auto" }}>
+      <div style={{ padding: "clamp(72px,10vh,100px) clamp(20px,5vw,72px) clamp(72px,10vh,100px)" }}>
+        <FadeIn>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px", marginBottom: "40px" }}>
+            <h2 style={{ fontFamily: F.display, fontSize: "clamp(32px,6vw,68px)", fontWeight: 700, color: C.dark, lineHeight: 1, margin: 0 }}>About Me <span style={{ fontStyle: "italic", color: C.red }}>/</span></h2>
+            <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.dim, letterSpacing: "0.1em" }}>(THE HUMAN)</span>
           </div>
         </FadeIn>
-        <FadeIn delay={0.2}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ padding: "20px", borderRadius: "14px", border: `1px solid ${C.border}`, background: C.cream }}>
-              <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.1em" }}>MY PHILOSOPHY</span>
-              <p style={{ fontFamily: F.display, fontSize: "16px", fontStyle: "italic", color: C.dark, margin: "8px 0 0", lineHeight: 1.5 }}>
-                Tools can generate code. They can't build trust.<br />They can't mentor a nervous first‑year student.<br />They can't navigate three cultures in three years.<br /><span style={{ color: C.red }}>That's the part of the work I care most about.</span>
+
+        <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "36px" }}>
+          <FadeIn delay={0.1}>
+            <div>
+              <p style={{ fontFamily: F.display, fontSize: "clamp(18px,2.2vw,26px)", color: C.dark, fontWeight: 600, fontStyle: "italic", lineHeight: 1.45, margin: "0 0 20px" }}>
+                "I turn complexity into clarity, raw data into decisions, and nervous first‑years into confident professionals."
+              </p>
+              <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.75, margin: "0 0 12px" }}>
+                I'm Nitish Madhavan — from Bengaluru to Vellore to Brisbane to Shanghai. Every move taught me how to work with people who think, build, and communicate completely differently.
+              </p>
+              <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.75, margin: "0 0 12px" }}>
+                At <span style={{ color: C.dark, fontWeight: 600 }}>Lentra.AI</span>, I helped reduce data transfer time and cost by about 30%. At <span style={{ color: C.dark, fontWeight: 600 }}>Audima Labs</span>, I shipped a cross‑platform desktop app end‑to‑end. At <span style={{ color: C.dark, fontWeight: 600 }}>YuLan</span>, I built ORM tools while getting up to speed in a completely new culture.
+              </p>
+              <p style={{ fontFamily: F.body, fontSize: "13px", color: C.muted, lineHeight: 1.75, margin: 0 }}>
+                My thesis focuses on making ETL pipelines more efficient in resource‑constrained cloud environments — targeting around 25% less wasted compute while keeping compliance intact.
               </p>
             </div>
-            <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
-              {stats.map((st, i) => (
-                <div key={i} ref={st.ref} style={{ padding: "14px 10px", borderRadius: "10px", textAlign: "center", border: `1px solid ${C.border}`, background: C.cream }}>
-                  <div style={{ fontFamily: F.display, fontSize: "22px", color: C.red, fontWeight: 700 }}>{st.val}</div>
-                  <div style={{ fontFamily: F.mono, fontSize: "8px", color: C.dim, letterSpacing: "0.05em", marginTop: "3px", textTransform: "uppercase" }}>{st.label}</div>
+          </FadeIn>
+          <FadeIn delay={0.2}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div style={{ padding: "20px", borderRadius: "14px", border: `1px solid ${C.border}`, background: C.cream }}>
+                <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.1em" }}>MY PHILOSOPHY</span>
+                <p style={{ fontFamily: F.display, fontSize: "16px", fontStyle: "italic", color: C.dark, margin: "8px 0 0", lineHeight: 1.5 }}>
+                  Tools can generate code. They can't build trust.<br />They can't mentor a nervous first‑year student.<br />They can't navigate three cultures in three years.<br /><span style={{ color: C.red }}>That's the part of the work I care most about.</span>
+                </p>
+              </div>
+              <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
+                {stats.map((st, i) => (
+                  <div key={i} ref={st.ref} style={{ padding: "14px 10px", borderRadius: "10px", textAlign: "center", border: `1px solid ${C.border}`, background: C.cream }}>
+                    <div style={{ fontFamily: F.display, fontSize: "22px", color: C.red, fontWeight: 700 }}>{st.val}</div>
+                    <div style={{ fontFamily: F.mono, fontSize: "8px", color: C.dim, letterSpacing: "0.05em", marginTop: "3px", textTransform: "uppercase" }}>{st.label}</div>
+                  </div>
+                ))}
+              </div>
+              {eduData.map((e, i) => (
+                <div key={i} onClick={() => setModalEdu(i)} style={{ padding: "12px 16px", borderRadius: "10px", border: `1px solid ${C.border}`, background: C.cream, display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", transition: "border-color 0.3s, transform 0.2s" }}
+                  onMouseEnter={ev => { ev.currentTarget.style.borderColor = C.red; ev.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={ev => { ev.currentTarget.style.borderColor = C.border; ev.currentTarget.style.transform = "none"; }}>
+                  <span style={{ fontSize: "20px" }}>{e.flag}</span>
+                  <div style={{ flex: 1 }}><p style={{ fontFamily: F.body, fontSize: "12px", color: C.dark, fontWeight: 600, margin: 0 }}>{e.school}</p><p style={{ fontFamily: F.body, fontSize: "10px", color: C.muted, margin: "1px 0 0" }}>{e.degree}</p></div>
+                  <span style={{ color: C.red, fontSize: "14px" }}>→</span>
                 </div>
               ))}
             </div>
-            {eduData.map((e, i) => (
-              <div key={i} onClick={() => setModalEdu(i)} style={{ padding: "12px 16px", borderRadius: "10px", border: `1px solid ${C.border}`, background: C.cream, display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", transition: "border-color 0.3s, transform 0.2s" }}
-                onMouseEnter={ev => { ev.currentTarget.style.borderColor = C.red; ev.currentTarget.style.transform = "translateY(-2px)"; }}
-                onMouseLeave={ev => { ev.currentTarget.style.borderColor = C.border; ev.currentTarget.style.transform = "none"; }}>
-                <span style={{ fontSize: "20px" }}>{e.flag}</span>
-                <div style={{ flex: 1 }}><p style={{ fontFamily: F.body, fontSize: "12px", color: C.dark, fontWeight: 600, margin: 0 }}>{e.school}</p><p style={{ fontFamily: F.body, fontSize: "10px", color: C.muted, margin: "1px 0 0" }}>{e.degree}</p></div>
-                <span style={{ color: C.red, fontSize: "14px" }}>→</span>
-              </div>
-            ))}
-          </div>
-        </FadeIn>
-      </div>
+          </FadeIn>
+        </div>
 
-      <Modal open={modalEdu !== null} onClose={() => setModalEdu(null)}>
-        {modalEdu !== null && (() => { const e = eduData[modalEdu]; return (<>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}><span style={{ fontSize: "32px" }}>{e.flag}</span><div><h3 style={{ fontFamily: F.display, fontSize: "22px", color: C.dark, fontWeight: 700, margin: 0, fontStyle: "italic" }}>{e.school}</h3><p style={{ fontFamily: F.body, fontSize: "14px", color: C.red, margin: "2px 0 0", fontWeight: 500 }}>{e.degree}</p></div></div>
-          <div style={{ padding: "12px 16px", borderRadius: "10px", background: C.cream, marginBottom: "16px" }}><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>GRADE</span><p style={{ fontFamily: F.body, fontSize: "15px", color: C.dark, fontWeight: 600, margin: "4px 0 0" }}>{e.details.grade}</p></div>
-          <div style={{ marginBottom: "16px" }}><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>COURSEWORK</span><div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>{e.details.coursework.map((c, ci) => (<span key={ci} style={{ fontFamily: F.body, fontSize: "11px", color: C.muted, padding: "4px 10px", borderRadius: "999px", border: `1px solid ${C.border}`, background: C.cream }}>{c}</span>))}</div></div>
-          {e.details.research && (<div style={{ marginBottom: "16px" }}><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>RESEARCH</span><p style={{ fontFamily: F.body, fontSize: "12px", color: C.muted, lineHeight: 1.7, margin: "6px 0 0" }}>{e.details.research}</p></div>)}
-          {e.details.activities && (<div><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>ACTIVITIES</span><p style={{ fontFamily: F.body, fontSize: "12px", color: C.muted, lineHeight: 1.7, margin: "6px 0 0" }}>{e.details.activities}</p></div>)}
-        </>); })()}
-      </Modal>
+        <Modal open={modalEdu !== null} onClose={() => setModalEdu(null)}>
+          {modalEdu !== null && (() => { const e = eduData[modalEdu]; return (<>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}><span style={{ fontSize: "32px" }}>{e.flag}</span><div><h3 style={{ fontFamily: F.display, fontSize: "22px", color: C.dark, fontWeight: 700, margin: 0, fontStyle: "italic" }}>{e.school}</h3><p style={{ fontFamily: F.body, fontSize: "14px", color: C.red, margin: "2px 0 0", fontWeight: 500 }}>{e.degree}</p></div></div>
+            <div style={{ padding: "12px 16px", borderRadius: "10px", background: C.cream, marginBottom: "16px" }}><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>GRADE</span><p style={{ fontFamily: F.body, fontSize: "15px", color: C.dark, fontWeight: 600, margin: "4px 0 0" }}>{e.details.grade}</p></div>
+            <div style={{ marginBottom: "16px" }}><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>COURSEWORK</span><div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>{e.details.coursework.map((c, ci) => (<span key={ci} style={{ fontFamily: F.body, fontSize: "11px", color: C.muted, padding: "4px 10px", borderRadius: "999px", border: `1px solid ${C.border}`, background: C.cream }}>{c}</span>))}</div></div>
+            {e.details.research && (<div style={{ marginBottom: "16px" }}><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>RESEARCH</span><p style={{ fontFamily: F.body, fontSize: "12px", color: C.muted, lineHeight: 1.7, margin: "6px 0 0" }}>{e.details.research}</p></div>)}
+            {e.details.activities && (<div><span style={{ fontFamily: F.mono, fontSize: "10px", color: C.red, letterSpacing: "0.08em" }}>ACTIVITIES</span><p style={{ fontFamily: F.body, fontSize: "12px", color: C.muted, lineHeight: 1.7, margin: "6px 0 0" }}>{e.details.activities}</p></div>)}
+          </>); })()}
+        </Modal>
+      </div>
     </div>
   );
 }
 
-
 // ═══════════════════════════════════════════
-// CARD 4 — CONTACT
+// CONTACT
 // ═══════════════════════════════════════════
 function Contact() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px clamp(20px,5vw,72px)", textAlign: "center" }}>
-      <FadeIn>
-        <span style={{ fontFamily: F.display, fontSize: "48px", color: C.red, fontStyle: "italic", display: "block", marginBottom: "16px", opacity: 0.5 }}>✦</span>
-        <h2 style={{ fontFamily: F.display, fontSize: "clamp(30px,6vw,68px)", fontWeight: 700, color: C.dark, lineHeight: 1.05, margin: "0 0 14px" }}>
-          Let's Make It<br /><span style={{ fontStyle: "italic", color: C.red }}>Happen.</span>
-        </h2>
-        <p style={{ fontFamily: F.body, fontSize: "14px", color: C.muted, maxWidth: "400px", margin: "0 auto 32px", lineHeight: 1.7 }}>
-          Whether it's optimising cloud costs, building a product, or building with intention — I'm in.
-        </p>
-      </FadeIn>
-      <FadeIn delay={0.12}>
-        <a href="mailto:nitishrmadhavan@gmail.com" style={{ display: "inline-block", padding: "14px 36px", borderRadius: "999px", background: C.red, color: "#fff", textDecoration: "none", fontFamily: F.body, fontWeight: 600, fontSize: "14px", transition: "transform 0.25s, box-shadow 0.25s" }}
-          onMouseEnter={e => { e.target.style.transform = "translateY(-3px)"; e.target.style.boxShadow = `0 14px 44px ${C.red}40`; }}
-          onMouseLeave={e => { e.target.style.transform = "none"; e.target.style.boxShadow = "none"; }}>nitishrmadhavan@gmail.com</a>
-        <div style={{ display: "flex", gap: "24px", justifyContent: "center", marginTop: "24px" }}>
-          {[{ label: "LinkedIn", url: "https://linkedin.com/in/nitishrmadhavan" }, { label: "GitHub", url: "https://github.com/nitishrmadhavan" }].map((l, i) => (
-            <a key={i} href={l.url} target="_blank" rel="noreferrer" style={{ color: C.dim, textDecoration: "none", fontFamily: F.mono, fontSize: "12px", transition: "color 0.25s" }}
-              onMouseEnter={e => e.target.style.color = C.red} onMouseLeave={e => e.target.style.color = C.dim}>{l.label} ↗</a>
-          ))}
-        </div>
-        <div style={{ marginTop: "48px", paddingTop: "16px", borderTop: `1px solid ${C.border}`, width: "100%", maxWidth: "500px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
-          <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim }}>© 2026 NITISH MADHAVAN</span>
-          <span style={{ fontFamily: F.mono, fontSize: "10px", color: `${C.dim}80` }}>DESIGNED TO BE CLEAR, FAST, AND RELIABLE.</span>
-        </div>
-      </FadeIn>
+    <div className="card-scroll" style={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ padding: "80px clamp(20px,5vw,72px)", textAlign: "center", width: "100%" }}>
+        <FadeIn>
+          <span style={{ fontFamily: F.display, fontSize: "48px", color: C.red, fontStyle: "italic", display: "block", marginBottom: "16px", opacity: 0.5 }}>✦</span>
+          <h2 style={{ fontFamily: F.display, fontSize: "clamp(30px,6vw,68px)", fontWeight: 700, color: C.dark, lineHeight: 1.05, margin: "0 0 14px" }}>
+            Let's Make It<br /><span style={{ fontStyle: "italic", color: C.red }}>Happen.</span>
+          </h2>
+          <p style={{ fontFamily: F.body, fontSize: "14px", color: C.muted, maxWidth: "400px", margin: "0 auto 32px", lineHeight: 1.7 }}>
+            Whether it's optimising cloud costs, building a product, or building with intention — I'm in.
+          </p>
+        </FadeIn>
+        <FadeIn delay={0.12}>
+          <a href="mailto:nitishrmadhavan@gmail.com" style={{ display: "inline-block", padding: "14px 36px", borderRadius: "999px", background: C.red, color: "#fff", textDecoration: "none", fontFamily: F.body, fontWeight: 600, fontSize: "14px", transition: "transform 0.25s, box-shadow 0.25s" }}
+            onMouseEnter={e => { e.target.style.transform = "translateY(-3px)"; e.target.style.boxShadow = `0 14px 44px ${C.red}40`; }}
+            onMouseLeave={e => { e.target.style.transform = "none"; e.target.style.boxShadow = "none"; }}>nitishrmadhavan@gmail.com</a>
+          <div style={{ display: "flex", gap: "24px", justifyContent: "center", marginTop: "24px" }}>
+            {[{ label: "LinkedIn", url: "https://linkedin.com/in/nitishrmadhavan" }, { label: "GitHub", url: "https://github.com/nitishrmadhavan" }].map((l, i) => (
+              <a key={i} href={l.url} target="_blank" rel="noreferrer" style={{ color: C.dim, textDecoration: "none", fontFamily: F.mono, fontSize: "12px", transition: "color 0.25s" }}
+                onMouseEnter={e => e.target.style.color = C.red} onMouseLeave={e => e.target.style.color = C.dim}>{l.label} ↗</a>
+            ))}
+          </div>
+          <div style={{ marginTop: "48px", paddingTop: "16px", borderTop: `1px solid ${C.border}`, width: "100%", maxWidth: "500px", margin: "48px auto 0", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+            <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.dim }}>© 2026 NITISH MADHAVAN</span>
+            <span style={{ fontFamily: F.mono, fontSize: "10px", color: `${C.dim}80` }}>DESIGNED TO BE CLEAR, FAST, AND RELIABLE.</span>
+          </div>
+        </FadeIn>
+      </div>
     </div>
   );
 }
 
-
 // ═══════════════════════════════════════════
-// MAIN
+// CARD STYLE — fully rounded, clipped
 // ═══════════════════════════════════════════
 const CARD_STYLE = (bg, isFirst = false, isLast = false) => ({
   position: "sticky",
   top: 0,
   height: "100vh",
-  overflowY: "auto",
+  overflow: "hidden",          // clips content to rounded card shape
   background: bg,
-  borderRadius: isFirst ? 0 : "28px 28px 0 0",
-  boxShadow: isFirst ? "none" : "0 -8px 60px rgba(0,0,0,0.15), 0 -2px 0 rgba(0,0,0,0.04)",
+  borderRadius: "28px",        // full rounding on all corners
+  boxShadow: isFirst
+    ? "0 8px 40px rgba(0,0,0,0.2)"
+    : "0 -8px 60px rgba(0,0,0,0.2), 0 -2px 0 rgba(0,0,0,0.06)",
   transformOrigin: "center top",
-  marginBottom: isLast ? 0 : "60vh",
+  marginBottom: isLast ? 0 : "40vh",
 });
 
+// ═══════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════
 export default function Portfolio() {
   const containerRef = useRef(null);
   const gsapCtxRef = useRef(null);
 
   useEffect(() => {
     document.title = "Who's Nitish?";
+    if (!containerRef.current) return;
 
-    const timer = setTimeout(() => {
-      if (!containerRef.current) return;
+    const cards = containerRef.current.querySelectorAll(".stack-card");
 
-      const cards = containerRef.current.querySelectorAll(".stack-card");
-      gsapCtxRef.current = gsap.context(() => {
-        cards.forEach((card, index) => {
-          const isLast = index === cards.length - 1;
-          if (isLast) return;
+    gsapCtxRef.current = gsap.context(() => {
 
-          ScrollTrigger.create({
-            trigger: card.nextElementSibling,
-            start: "top bottom",
-            end: "top top",
-            scrub: true,
-            onUpdate: (self) => {
-              const p = self.progress;
-              gsap.set(card, {
-                scale: 1 - p * 0.05,
-                opacity: 1 - p * 0.6,
-                borderRadius: `${Math.min(p * 28, 28)}px`,
-              });
-            },
-          });
+      // Register each card-scroll as a GSAP scroller proxy
+      // so inner LetterReveal / WordReveal triggers work correctly
+      cards.forEach((card) => {
+        const inner = card.querySelector(".card-scroll");
+        if (!inner) return;
+        ScrollTrigger.scrollerProxy(inner, {
+          scrollTop(value) {
+            if (arguments.length) inner.scrollTop = value;
+            return inner.scrollTop;
+          },
+          getBoundingClientRect() {
+            return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+          },
         });
+        // keep GSAP in sync when inner div scrolls
+        inner.addEventListener("scroll", ScrollTrigger.update);
+      });
 
-        ScrollTrigger.refresh();
-      }, containerRef.current);
-    }, 200);
+      // Stacking scale/fade animation — driven by window scroll
+      cards.forEach((card, index) => {
+        const isLast = index === cards.length - 1;
+        if (isLast) return;
+        ScrollTrigger.create({
+          trigger: card.nextElementSibling,
+          scroller: window,
+          start: "top bottom",
+          end: "top top",
+          scrub: true,
+          onUpdate: (self) => {
+            const p = self.progress;
+            gsap.set(card, {
+              scale: 1 - p * 0.05,
+              opacity: 1 - p * 0.55,
+            });
+          },
+        });
+      });
+
+      ScrollTrigger.refresh();
+    }, containerRef);
 
     return () => {
-      clearTimeout(timer);
+      // clean up inner scroll listeners
+      containerRef.current?.querySelectorAll(".card-scroll").forEach(inner => {
+        inner.removeEventListener("scroll", ScrollTrigger.update);
+      });
       gsapCtxRef.current?.revert();
     };
   }, []);
@@ -703,8 +684,11 @@ export default function Portfolio() {
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: ${C.cream}; }
         ::-webkit-scrollbar-thumb { background: ${C.red}30; border-radius: 3px; }
-        .stack-card { scrollbar-width: none; -ms-overflow-style: none; }
-        .stack-card::-webkit-scrollbar { display: none; }
+
+        /* Hide inner card scrollbars — scroll is gesture-driven */
+        .card-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+        .card-scroll::-webkit-scrollbar { display: none; }
+
         @keyframes bannerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes bannerScrollR { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
         @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(0.85); } }
@@ -731,7 +715,8 @@ export default function Portfolio() {
 
       <Nav />
 
-      <div ref={containerRef}>
+      {/* Outer container — padded so dark body peeks above first card */}
+      <div ref={containerRef} style={{ paddingTop: "10px" }}>
         <section className="stack-card" id="hero" style={CARD_STYLE(C.cream, true)}>
           <Hero />
         </section>
