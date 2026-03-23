@@ -137,7 +137,7 @@ function LetterReveal({ text, tag: Tag = "h2", style = {}, start = "top 85%", cl
     return () => ctx.revert();
   }, []);
   return (
-    <Tag ref={ref} className={className} style={{ ...style, overflow: "hidden" }}>
+    <Tag ref={ref} className={className} style={{ ...style, overflow: "hidden", paddingBottom: "0.18em", marginBottom: "-0.18em" }}>
       {text.split("").map((char, i) => (
         <span key={i} className="gl" style={{ display: "inline-block" }}>
           {char === " " ? "\u00A0" : char}
@@ -166,7 +166,7 @@ function WordReveal({ children, style = {}, start = "top 88%" }) {
   return (
     <p ref={ref} style={{ ...style, margin: 0 }}>
       {String(children).split(" ").map((word, i) => (
-        <span key={i} style={{ display: "inline-block", overflow: "hidden", marginRight: "0.28em" }}>
+        <span key={i} style={{ display: "inline-block", overflow: "hidden", marginRight: "0.28em", paddingBottom: "0.18em", marginBottom: "-0.18em" }}>
           <span className="gw" style={{ display: "inline-block" }}>{word}</span>
         </span>
       ))}
@@ -260,7 +260,7 @@ function Hero() {
             <p ref={metaRef} style={{ fontFamily: F.mono, fontSize: "clamp(10px,1vw,13px)", color: C.muted, letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 clamp(16px,2.5vh,28px)" }}>
               Data Engineer · Software Developer · Mentor
             </p>
-            <div style={{ overflow: "hidden", marginBottom: "clamp(20px,3.5vh,36px)" }}>
+            <div style={{ overflow: "hidden", paddingBottom: "0.18em", marginBottom: "calc(clamp(20px,3.5vh,36px) - 0.18em)" }}>
               <h1 ref={nameRef} className="hero-name" style={{ fontFamily: F.display, fontSize: "clamp(40px, 8.5vw, 140px)", fontWeight: 700, lineHeight: 0.92, letterSpacing: "-0.03em", margin: 0, userSelect: "none" }}>
                 {"NITISH".split("").map((ch, i) => (
                   <span key={i} className="hl" style={{ display: "inline-block", color: C.dark }}>{ch}</span>
@@ -598,11 +598,11 @@ const CARD_STYLE = (bg, isFirst = false, isLast = false) => ({
   position: "sticky",
   top: 0,
   height: "100vh",
-  overflow: "hidden",          // clips content to rounded card shape
+  overflow: "hidden",
   background: bg,
-  borderRadius: "28px",        // full rounding on all corners
+  borderRadius: isFirst ? 0 : "28px",
   boxShadow: isFirst
-    ? "0 8px 40px rgba(0,0,0,0.2)"
+    ? "none"
     : "0 -8px 60px rgba(0,0,0,0.2), 0 -2px 0 rgba(0,0,0,0.06)",
   transformOrigin: "center top",
   marginBottom: isLast ? 0 : "40vh",
@@ -715,8 +715,7 @@ export default function Portfolio() {
 
       <Nav />
 
-      {/* Outer container — padded so dark body peeks above first card */}
-      <div ref={containerRef} style={{ paddingTop: "10px" }}>
+      <div ref={containerRef}>
         <section className="stack-card" id="hero" style={CARD_STYLE(C.cream, true)}>
           <Hero />
         </section>
